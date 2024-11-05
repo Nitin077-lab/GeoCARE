@@ -38,7 +38,7 @@ function draw() {
   beginShape();
   vertex(0, height / 2);
   for (let x = 0; x <= width; x += 10) {
-    let y = -frameCount * 0.2 + height / 2 + 20 * sin(TWO_PI * x / 10 + frameCount * 0.1);
+    let y = height - frameCount * 0.5 + 20 * sin(TWO_PI * x / 10 + frameCount * 0.1);
     vertex(x, y);
   }
   vertex(width, height / 2);
