@@ -1,15 +1,10 @@
-// Daniel Shiffman
-// http://codingtra.in
-// http://patreon.com/codingtrain
-// Code for: https://youtu.be/QHEQuoIKgNE
 
 let circles;
 let img;
 positions = [];
-let colorFrequency = {};
 
 function preload() {
-  img = loadImage('assets/gc1.png');
+  img = loadImage('https://raw.githubusercontent.com/kitsunehai/soil-particles-p5js/main/assets/gc1.png');
 }
 
 function setup() {
