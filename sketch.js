@@ -43,7 +43,7 @@ function draw() {
 
   // frameRate(20);
 
-  let total = 6;
+  let total = 50;
   let count = 0;
   let attempts = 0;
 
