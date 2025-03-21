@@ -1,48 +1,59 @@
-
 let circles;
 let img;
-positions = [];
+let positions = [];
+let scaleFactor;
 
 function preload() {
   img = loadImage('https://raw.githubusercontent.com/kitsunehai/soil-particles-p5js/main/assets/gc1.png');
 }
 
 function setup() {
-  // createCanvas(1640, 1160);
-  createCanvas(img.width, img.height);
-  var density = displayDensity();
+  calculateCanvasSize();
   pixelDensity(1);
   img.loadPixels();
   circles = [];
-
-  console.log(img.width);
-  console.log(img.height);
-  console.log('pixels', img.pixels.length);
-  console.log(density);
-
   positions = findPositions(img, 255, 255, 255);
-  console.log('Positions:', positions);
 }
 
 function draw() {
   background(245, 245, 220);
+  scale(scaleFactor);
+  drawWaves();
+  growCircles();
+}
 
-  // Fill the lower half with cyan color
+function calculateCanvasSize() {
+  let aspectRatio = img.width / img.height;
+  let w = windowWidth;
+  let h = windowHeight;
+
+  if (w / h > aspectRatio) {
+    // Fit by height
+    scaleFactor = h / img.height;
+  } else {
+    // Fit by width
+    scaleFactor = w / img.width;
+  }
+
+  createCanvas(w, h);
+}
+
+function drawWaves() {
   fill(0, 255, 255);
   noStroke();
   beginShape();
-  vertex(0, height / 2);
-  for (let x = 0; x <= width; x += 10) {
-    let y = height - frameCount * 0.5 + 20 * sin(TWO_PI * x / 10 + frameCount * 0.1);
+  vertex(0, img.height / 2);
+  for (let x = 0; x <= img.width; x += 10) {
+    let y = img.height - frameCount * 0.5 + 20 * sin(TWO_PI * x / 10 + frameCount * 0.1);
     vertex(x, y);
   }
-  vertex(width, height / 2);
-  vertex(width, height);
-  vertex(0, height);
+  vertex(img.width, img.height / 2);
+  vertex(img.width, img.height);
+  vertex(0, img.height);
   endShape(CLOSE);
+}
 
-  // frameRate(20);
-
+function growCircles() {
   let total = 6;
   let count = 0;
   let attempts = 0;
@@ -56,7 +67,6 @@ function draw() {
     attempts++;
     if (attempts > 100) {
       noLoop();
-      console.log('finished');
       break;
     }
   }
@@ -69,17 +79,14 @@ function draw() {
       continue;
     }
 
-
     if (circle.edges()) {
       circle.growing = false;
-    }
-    else {
+    } else {
       for (let j = 0; j < circles.length; j++) {
         let other = circles[j];
         if (circle !== other) {
           let d = dist(circle.x, circle.y, other.x, other.y);
           let distance = circle.r + other.r;
-
           if (d < distance) {
             circle.growing = false;
             break;
@@ -87,15 +94,12 @@ function draw() {
         }
       }
     }
-
     circle.show();
     circle.grow();
   }
 }
 
 function newCircle() {
-
-  console.log('positions size', positions.length);
   if (positions.length === 0) {
     return null;
   }
@@ -109,7 +113,6 @@ function newCircle() {
     let circle = circles[i];
     let d = dist(x, y, circle.x, circle.y);
     if (d < circle.r) {
-      console.log('invalid');
       valid = false;
       break;
     }
@@ -117,7 +120,6 @@ function newCircle() {
 
   if (valid) {
     var c = color(random(255), random(255), random(0, 150));
-    console.log('color', c);
     return new Circle(x, y, c);
   } else {
     return null;
@@ -138,4 +140,8 @@ function findPositions(img, r, g, b) {
     }
   }
   return positions;
+}
+
+function windowResized() {
+  calculateCanvasSize();
 }
