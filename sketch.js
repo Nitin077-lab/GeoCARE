@@ -71,7 +71,7 @@ function draw() {
     }
 
 
-    if (circle.edges()) {
+    if (circle.edges() || circle.r > 5) {
       circle.growing = false;
     }
     else {

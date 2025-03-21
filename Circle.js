@@ -14,11 +14,11 @@ function Circle(x, y, color) {
     };
 
     this.show = function () {
-        // stroke(255);
+        stroke(0);
         // noFill();
         fill(this.color);
-        // strokeWeight(2);
-        noStroke();
+        strokeWeight(1);
+        // noStroke();
         ellipse(this.x, this.y, this.r * 2, this.r * 2);
     };
 
