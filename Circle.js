@@ -18,7 +18,7 @@ function Circle(x, y, color) {
         // noFill();
         fill(this.color);
         strokeWeight(1);
-        noStroke();
+        // noStroke();
         ellipse(this.x, this.y, this.r * 2, this.r * 2);
     };
 
