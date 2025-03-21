@@ -1,32 +1,34 @@
+
 let circles;
 let img;
-let originalPositions = [];
-let positions = [];
-let scaleFactor;
-let baseWidth, baseHeight;
+positions = [];
 
 function preload() {
   img = loadImage('https://raw.githubusercontent.com/kitsunehai/soil-particles-p5js/main/assets/gc1.png');
 }
 
 function setup() {
-  baseWidth = img.width;
-  baseHeight = img.height;
-  calculateCanvasSize();
-
+  // createCanvas(1640, 1160);
+  // createCanvas(img.width, img.height);
+  createCanvas(windowWidth, windowHeight);
+  var density = displayDensity();
   pixelDensity(1);
   img.loadPixels();
   circles = [];
 
-  // Store original positions from white pixels
-  originalPositions = findPositions(img, 255, 255, 255);
-  scalePositions(); // scale according to canvas size
+  console.log(img.width);
+  console.log(img.height);
+  console.log('pixels', img.pixels.length);
+  console.log(density);
+
+  positions = findPositions(img, 255, 255, 255);
+  console.log('Positions:', positions);
 }
 
 function draw() {
   background(245, 245, 220);
 
-  // Draw waves (scaled)
+  // Fill the lower half with cyan color
   fill(0, 255, 255);
   noStroke();
   beginShape();
@@ -39,6 +41,8 @@ function draw() {
   vertex(width, height);
   vertex(0, height);
   endShape(CLOSE);
+
+  // frameRate(20);
 
   let total = 6;
   let count = 0;
@@ -53,22 +57,24 @@ function draw() {
     attempts++;
     if (attempts > 100) {
       noLoop();
+      console.log('finished');
       break;
     }
   }
 
   for (let i = 0; i < circles.length; i++) {
     let circle = circles[i];
-
     if (!circle.growing) {
       circle.show();
       circle.grow();
       continue;
     }
 
+
     if (circle.edges()) {
       circle.growing = false;
-    } else {
+    }
+    else {
       for (let j = 0; j < circles.length; j++) {
         let other = circles[j];
         if (circle !== other) {
@@ -88,28 +94,9 @@ function draw() {
   }
 }
 
-function calculateCanvasSize() {
-  let w = windowWidth;
-  let h = windowHeight;
-  let aspectRatio = baseWidth / baseHeight;
-
-  if (w / h > aspectRatio) {
-    scaleFactor = h / baseHeight;
-  } else {
-    scaleFactor = w / baseWidth;
-  }
-
-  createCanvas(baseWidth * scaleFactor, baseHeight * scaleFactor);
-}
-
-function scalePositions() {
-  positions = originalPositions.map(pos => ({
-    x: pos.x * scaleFactor,
-    y: pos.y * scaleFactor
-  }));
-}
-
 function newCircle() {
+
+  console.log('positions size', positions.length);
   if (positions.length === 0) {
     return null;
   }
@@ -123,21 +110,23 @@ function newCircle() {
     let circle = circles[i];
     let d = dist(x, y, circle.x, circle.y);
     if (d < circle.r) {
+      console.log('invalid');
       valid = false;
       break;
     }
   }
 
   if (valid) {
-    let c = color(random(255), random(255), random(0, 150));
-    return new Circle(x, y, c, random(2, 6) * scaleFactor);
+    var c = color(random(255), random(255), random(0, 150));
+    console.log('color', c);
+    return new Circle(x, y, c);
   } else {
     return null;
   }
 }
 
 function findPositions(img, r, g, b) {
-  let pos = [];
+  let positions = [];
   for (let y = 0; y < img.height; y++) {
     for (let x = 0; x < img.width; x++) {
       let index = (x + y * img.width) * 4;
@@ -145,47 +134,10 @@ function findPositions(img, r, g, b) {
       let green = img.pixels[index + 1];
       let blue = img.pixels[index + 2];
       if (red === r && green === g && blue === b) {
-        pos.push({ x: x, y: y });
+        // positions.push({ x: x * windowHeight/img.height, y: y * windowWidth/img.width });
+        positions.push({ x: x * windowWidth/img.width, y: y * windowHeight/img.height  });
       }
     }
   }
-  return pos;
-}
-
-function windowResized() {
-  calculateCanvasSize();
-  scalePositions();
-  // Clear circles to restart with new dimensions
-  circles = [];
-}
-
-class Circle {
-  constructor(x, y, col, r = 1) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.col = col;
-    this.growing = true;
-  }
-
-  grow() {
-    if (this.growing) {
-      this.r += 0.5 * scaleFactor;
-    }
-  }
-
-  edges() {
-    return (
-      this.x + this.r > width ||
-      this.x - this.r < 0 ||
-      this.y + this.r > height ||
-      this.y - this.r < 0
-    );
-  }
-
-  show() {
-    stroke(0);
-    fill(this.col);
-    ellipse(this.x, this.y, this.r * 2);
-  }
+  return positions;
 }
